@@ -3,21 +3,18 @@
 
 #define UMBRAL 120
 
-using namespace cv;
-using namespace std;
-
 int main(int argc, char **argv) {
     const char *path = "../images/single_rice.jpg";
 
-    Mat img = imread(path, IMREAD_COLOR);
+    cv::Mat img = cv::imread(path, cv::IMREAD_COLOR);
     int rows = img.size().height, cols = img.size().width;
 
-    vector<Mat> channels;
+    std::vector<cv::Mat> channels;
     split(img, channels);
     
-    Mat out = Mat(rows, cols, CV_8U);
+    cv::Mat out = cv::Mat(rows, cols, CV_8U);
     
-    imshow("Rice", img);
+    cv::imshow("Rice", img);
 
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
@@ -30,8 +27,8 @@ int main(int argc, char **argv) {
         }
     }
     
-    imshow("Rice segmented", out);
+    cv::imshow("Rice segmented", out);
 
-    waitKey(0);
+    cv::waitKey(0);
     return EXIT_SUCCESS;
 }
