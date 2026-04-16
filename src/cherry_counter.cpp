@@ -16,11 +16,14 @@ typedef struct position {
     int y;
 } Position;
 
+cv::Mat visited;
+std::vector<Position> expanded;
+cv::Mat out;
 
-void expandir(int i, int j, cv::Mat &visited, std::vector<Position> &expanded, cv::Mat &out);
+void expandir(int i, int j);
 
 int main(int argc, char **argv) {
-    const char *path = "../images/frutos_rojos.jpg";
+    const char *path = "./images/frutos_rojos.jpg";
 
     cv::Mat img = cv::imread(path, cv::IMREAD_COLOR);
     int rows = img.size().height, cols = img.size().width;
@@ -28,7 +31,7 @@ int main(int argc, char **argv) {
     std::vector<cv::Mat> channels;
     split(img, channels);
     
-    cv::Mat out = cv::Mat(rows, cols, CV_8U);
+    out = cv::Mat(rows, cols, CV_8U);
     // cv::imshow("Cherry Counter", img);
     
     for (size_t i = 0; i < rows; i++) {
@@ -37,17 +40,17 @@ int main(int argc, char **argv) {
         }
     }
 
-    cv::Mat visited = cv::Mat(rows, cols, CV_8U);
-    std::vector<Position> expanded = {};
+    visited = cv::Mat(rows, cols, CV_8U);
+    expanded = std::vector<Position>();
 
     // sacar el area
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             count = 0;
             uchar pix = out.at<uchar>(i, j);
+            visited.at<uchar>(i, j) = VISITED;
             if (pix == DETECTED && visited.at<uchar>(i, j) != VISITED) {
-                // visited.at<uchar>(i, j) = VISITED;
-                expandir(i, j, visited, expanded, out);
+                expandir(i, j);
                 
                 if (count > 0) printf("Count: %d\n", count);
                 
@@ -77,7 +80,7 @@ int main(int argc, char **argv) {
     return EXIT_SUCCESS;
 }
 
-void expandir(int i, int j, cv::Mat &visited, std::vector<Position> &expanded, cv::Mat &out) {
+void expandir(int i, int j) {
     if (visited.at<uchar>(i, j) == VISITED) {
         return;
     }
@@ -94,7 +97,7 @@ void expandir(int i, int j, cv::Mat &visited, std::vector<Position> &expanded, c
             pos.x = i - 1;
             pos.y = j;
             expanded.push_back(pos);
-            expandir(i - 1, j, visited, expanded, out);
+            expandir(i - 1, j);
         }
 
         if (j != 0) {
@@ -104,7 +107,7 @@ void expandir(int i, int j, cv::Mat &visited, std::vector<Position> &expanded, c
                 pos.x = i - 1;
                 pos.y = j - 1;
                 expanded.push_back(pos);
-                expandir(i - 1, j - 1, visited, expanded, out);
+                expandir(i - 1, j - 1);
             }
         }
 
@@ -115,7 +118,7 @@ void expandir(int i, int j, cv::Mat &visited, std::vector<Position> &expanded, c
                 pos.x = i - 1;
                 pos.y = j + 1;
                 expanded.push_back(pos);
-                expandir(i - 1, j + 1, visited, expanded, out);
+                expandir(i - 1, j + 1);
             }
         }
     }
@@ -127,7 +130,7 @@ void expandir(int i, int j, cv::Mat &visited, std::vector<Position> &expanded, c
             pos.x = i + 1;
             pos.y = j;
             expanded.push_back(pos);
-            expandir(i + 1, j, visited, expanded, out);
+            expandir(i + 1, j);
         }
         if (j != 0) {
             // consultar abajo izq
@@ -136,7 +139,7 @@ void expandir(int i, int j, cv::Mat &visited, std::vector<Position> &expanded, c
                 pos.x = i + 1;
                 pos.y = j - 1;
                 expanded.push_back(pos);
-                expandir(i + 1, j - 1, visited, expanded, out);
+                expandir(i + 1, j - 1);
             }
         }
 
@@ -147,7 +150,7 @@ void expandir(int i, int j, cv::Mat &visited, std::vector<Position> &expanded, c
                 pos.x = i + 1;
                 pos.y = j + 1;
                 expanded.push_back(pos);
-                expandir(i + 1, j + 1, visited, expanded, out);
+                expandir(i + 1, j + 1);
             }
 
         }
@@ -160,7 +163,7 @@ void expandir(int i, int j, cv::Mat &visited, std::vector<Position> &expanded, c
             pos.x = i;
             pos.y = j - 1;
             expanded.push_back(pos);
-            expandir(i, j - 1, visited, expanded, out);
+            expandir(i, j - 1);
         }
     }
 
@@ -171,7 +174,7 @@ void expandir(int i, int j, cv::Mat &visited, std::vector<Position> &expanded, c
             pos.x = i;
             pos.y = j + 1;
             expanded.push_back(pos);
-            expandir(i, j + 1, visited, expanded, out);
+            expandir(i, j + 1);
         }
     }
 }
