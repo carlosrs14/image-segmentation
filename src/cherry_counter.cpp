@@ -74,11 +74,34 @@ int main(int argc, char **argv) {
     printf("Cherries: %d\n", cherry_counter);
     
     
-    // FALTA: sacar ahora solo el perimetro
+    cv::Mat perimeter = cv::Mat::zeros(img.size(), CV_8U);
+
+    for (int i = 1; i < rows - 1; i++) {
+        for (int j = 1; j < cols - 1; j++) {
+            if (out.at<uchar>(i, j) == 255) {
+                bool isBorde = 0;
+
+                for (int di = -1; di < 2; di++) {
+                    for (int dj = -1; dj < 2; dj++) {
+                        if (di == 0 && dj == 0) continue;
+                        if (out.at<uchar>(i + di, j + dj) == 0) {
+                            isBorde = 1;
+                        }
+                    }
+                }
+                if (isBorde) {
+                    perimeter.at<uchar>(i, j) = 255;
+                }
+            }
+        }
+    }
+    
+
 
     cv::imshow("Cherry Red Channel", channels[2]);
     cv::imshow("Cherries Segmented", out);
     cv::imshow("Visted Matrix", visited);
+    cv::imshow("Perimeter Matrix", perimeter);
 
     cv::waitKey(0);
    
