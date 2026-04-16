@@ -1,15 +1,16 @@
-#include <opencv2/opencv.hpp>
+#include <opencv2/opencv.hpp> 
 #include <stdlib.h> 
 
-#define UMBRAL 235
+#define UMBRAL 220
 #define DETECTED 255
 
 #define VISITED 100
 #define NOT_VISITED 0
 #define IS_CHERRY 255
 
-#define UMBRAL_AREA 70
-int count;
+#define UMBRAL_AREA 700
+int count = 0;
+int cherry_counter = 0;
 
 typedef struct position {
     int x;
@@ -20,7 +21,7 @@ cv::Mat visited;
 std::vector<Position> expanded;
 cv::Mat out;
 
-void expandir(int i, int j);
+void expand(int i, int j);
 
 int main(int argc, char **argv) {
     const char *path = "./images/frutos_rojos.jpg";
@@ -46,13 +47,14 @@ int main(int argc, char **argv) {
     // sacar el area
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            count = 0;
             uchar pix = out.at<uchar>(i, j);
-            visited.at<uchar>(i, j) = VISITED;
+            
             if (pix == DETECTED && visited.at<uchar>(i, j) != VISITED) {
-                expandir(i, j);
                 
-                if (count > 0) printf("Count: %d\n", count);
+                count = 0;
+                expanded.clear();
+                expand(i, j);
+                
                 
                 if (count < UMBRAL_AREA) {
                     // lo que acabamos de expandir no es cereza
@@ -60,16 +62,19 @@ int main(int argc, char **argv) {
                     for (Position pos : expanded) {
                         out.at<uchar>(pos.x, pos.y) = 0;
                     }
+                } else {
+                    cherry_counter ++;
+                    for (Position pos : expanded) {
+                        out.at<uchar>(pos.x, pos.y) = IS_CHERRY;
+                    }
                 }
-
-                expanded.clear();
             }
         }
     }
+    printf("Cherries: %d\n", cherry_counter);
     
-
-    // sacar ahora solo el perimetro
-
+    
+    // FALTA: sacar ahora solo el perimetro
 
     cv::imshow("Cherry Red Channel", channels[2]);
     cv::imshow("Cherries Segmented", out);
@@ -80,101 +85,29 @@ int main(int argc, char **argv) {
     return EXIT_SUCCESS;
 }
 
-void expandir(int i, int j) {
-    if (visited.at<uchar>(i, j) == VISITED) {
-        return;
-    }
+void expand(int i, int j) {
+    if (visited.at<uchar>(i, j) == VISITED) return;
+    
     visited.at<uchar>(i, j) = VISITED;
+    
+    if (out.at<uchar>(i, j) != DETECTED) return;
+    
+    expanded.push_back({i, j});
+    count++;
 
-    if (out.at<uchar>(i, j) == DETECTED) {
-        count++;
-    }
-
-    if (i != 0) {
-        // consultar arriba
-        if (visited.at<uchar>(i - 1, j) != VISITED) {
-            Position pos;
-            pos.x = i - 1;
-            pos.y = j;
-            expanded.push_back(pos);
-            expandir(i - 1, j);
-        }
-
-        if (j != 0) {
-            // consultar diagonal arriba izq
-            if (visited.at<uchar>(i - 1, j - 1) != VISITED) {
-                Position pos;
-                pos.x = i - 1;
-                pos.y = j - 1;
-                expanded.push_back(pos);
-                expandir(i - 1, j - 1);
+    int rows = visited.size().height;
+    int cols = visited.size().width;
+    
+    for (int di = -1; di < 2; di++) {
+        for (int dj = -1; dj < 2; dj++) {
+            if (di == 0 && dj == 0) continue;
+            
+            int ni = i + di;
+            int nj = j + dj;
+            
+            if (ni >= 0 && ni < rows && nj >= 0 && nj < cols) {
+                expand(ni, nj);
             }
         }
-
-        if (j != visited.size().width - 1) {
-            // consultar diagonal arriba der
-            if (visited.at<uchar>(i - 1, j + 1) != VISITED) {
-                Position pos;
-                pos.x = i - 1;
-                pos.y = j + 1;
-                expanded.push_back(pos);
-                expandir(i - 1, j + 1);
-            }
-        }
-    }
-
-    if (i != visited.size().height - 1) {
-        // consultar abajo
-        if (visited.at<uchar>(i + 1, j) != VISITED) {
-            Position pos;
-            pos.x = i + 1;
-            pos.y = j;
-            expanded.push_back(pos);
-            expandir(i + 1, j);
-        }
-        if (j != 0) {
-            // consultar abajo izq
-            if (visited.at<uchar>(i + 1, j - 1) != VISITED) {
-                Position pos;
-                pos.x = i + 1;
-                pos.y = j - 1;
-                expanded.push_back(pos);
-                expandir(i + 1, j - 1);
-            }
-        }
-
-        if (j != visited.size().width - 1) { 
-            // consultar abajo der
-            if (visited.at<uchar>(i + 1, j + 1) != VISITED) {
-                Position pos;
-                pos.x = i + 1;
-                pos.y = j + 1;
-                expanded.push_back(pos);
-                expandir(i + 1, j + 1);
-            }
-
-        }
-    }
-
-    if (j != 0) {
-        // consultar izq
-        if (visited.at<uchar>(i, j - 1) != VISITED) {
-            Position pos;
-            pos.x = i;
-            pos.y = j - 1;
-            expanded.push_back(pos);
-            expandir(i, j - 1);
-        }
-    }
-
-    if (j != visited.size().width - 1) {
-        // consultar der
-        if (visited.at<uchar>(i, j + 1) != VISITED) {
-            Position pos;
-            pos.x = i;
-            pos.y = j + 1;
-            expanded.push_back(pos);
-            expandir(i, j + 1);
-        }
-    }
+   }
 }
