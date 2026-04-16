@@ -100,8 +100,8 @@ int main(int argc, char **argv) {
 
     cv::imshow("1 Image Source", img);
     cv::imshow("2 Cherry Red Channel", channels[2]);
-    cv::imshow("3 Cherries Segmented", out);
-    cv::imshow("4 Visted Matrix", visited);
+    cv::imshow("3 Visted Matrix", visited);
+    cv::imshow("4 Cherries Segmented", out);
     cv::imshow("5 Perimeter Matrix", perimeter);
     cv::imshow("6 Superpuestas Matrix", merged);
     cv::waitKey(0);
