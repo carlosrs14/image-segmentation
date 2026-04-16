@@ -1,7 +1,7 @@
 #include <opencv2/opencv.hpp> 
 #include <stdlib.h> 
 
-#define UMBRAL 200//100
+#define UMBRAL 50
 #define DETECTED 255
 
 #define VISITED 100
@@ -39,7 +39,12 @@ int main(int argc, char **argv) {
     
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
-            out.at<uchar>(i, j) = channels[2].at<uchar>(i, j) < UMBRAL ? 0: 255;
+            uchar pix_blue = channels[0].at<uchar>(i, j); 
+            uchar pix_green = channels[1].at<uchar>(i, j); 
+            uchar pix_red = channels[2].at<uchar>(i, j);
+
+            uchar dif = (pix_blue + pix_green) / 2;
+            out.at<uchar>(i, j) = pix_red - dif < UMBRAL ? 0: 255;
         }
     }
 
