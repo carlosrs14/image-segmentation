@@ -9,3 +9,6 @@ Repository featuring image segmentation implementations in C++ using OpenCV, foc
 
 ### Rice Segmentation (Multi-grain)
 ![Rice Result](assets/rice_out.png)
+
+### Cherry Segmentation
+![Cherries Rsult](assets/cherry_segmented.png)

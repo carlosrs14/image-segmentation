@@ -1,7 +1,7 @@
 #include <opencv2/opencv.hpp> 
 #include <stdlib.h> 
 
-#define UMBRAL 220
+#define UMBRAL 200
 #define DETECTED 255
 
 #define VISITED 100
@@ -22,6 +22,8 @@ std::vector<Position> expanded;
 cv::Mat out;
 
 void expand(int i, int j);
+bool is_borde(int i, int j);
+bool is_cherry(int i, int j);
 
 int main(int argc, char **argv) {
     const char *path = "./images/frutos_rojos.jpg";
@@ -55,7 +57,6 @@ int main(int argc, char **argv) {
                 expanded.clear();
                 expand(i, j);
                 
-                
                 if (count < UMBRAL_AREA) {
                     // lo que acabamos de expandir no es cereza
                     // poner lo que acabamos de expandir en cero
@@ -78,34 +79,52 @@ int main(int argc, char **argv) {
 
     for (int i = 1; i < rows - 1; i++) {
         for (int j = 1; j < cols - 1; j++) {
-            if (out.at<uchar>(i, j) == 255) {
-                bool isBorde = 0;
-
-                for (int di = -1; di < 2; di++) {
-                    for (int dj = -1; dj < 2; dj++) {
-                        if (di == 0 && dj == 0) continue;
-                        if (out.at<uchar>(i + di, j + dj) == 0) {
-                            isBorde = 1;
-                        }
-                    }
-                }
-                if (isBorde) {
-                    perimeter.at<uchar>(i, j) = 255;
-                }
+            if (is_cherry(i, j) && is_borde(i, j)) {
+                perimeter.at<uchar>(i, j) = 255;
             }
         }
     }
-    
 
+    cv::Mat merged = cv::Mat::zeros(out.size(), CV_8U);
 
-    cv::imshow("Cherry Red Channel", channels[2]);
-    cv::imshow("Cherries Segmented", out);
-    cv::imshow("Visted Matrix", visited);
-    cv::imshow("Perimeter Matrix", perimeter);
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (perimeter.at<uchar>(i, j) == 255) {
+                channels[0].at<uchar>(i, j) = 0;                
+                channels[1].at<uchar>(i, j) = 255;                
+            }
+        }
+    }
 
+    cv::merge(channels, merged);
+
+    cv::imshow("1 Image Source", img);
+    cv::imshow("2 Cherry Red Channel", channels[2]);
+    cv::imshow("3 Cherries Segmented", out);
+    cv::imshow("4 Visted Matrix", visited);
+    cv::imshow("5 Perimeter Matrix", perimeter);
+    cv::imshow("6 Superpuestas Matrix", merged);
     cv::waitKey(0);
    
     return EXIT_SUCCESS;
+}
+
+bool is_cherry(int i, int j) {
+    return out.at<uchar>(i, j) == IS_CHERRY;
+}
+
+bool is_borde(int i, int j) {
+    bool isBorde = 0;
+
+    for (int di = -1; di < 2; di++) {
+        for (int dj = -1; dj < 2; dj++) {
+            if (di == 0 && dj == 0) continue;
+            if (out.at<uchar>(i + di, j + dj) == 0) {
+                isBorde = 1;
+            }
+        }
+    }
+    return isBorde;
 }
 
 void expand(int i, int j) {
@@ -132,5 +151,5 @@ void expand(int i, int j) {
                 expand(ni, nj);
             }
         }
-   }
+    }
 }
