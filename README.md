@@ -11,5 +11,12 @@ Repository featuring image segmentation implementations in C++ using OpenCV, foc
 ![Rice Result](assets/rice_out.png)
 
 ### Cherry Segmentation
-![Cherries Result part I](assets/cherry_segmented_1.png)
+#### Example 1
+![Cherries Result 1 part I](assets/cherry_segmented_1.png)
 ![Cherries Result part II](assets/cherry_segmented_2.png)
+
+#### Example 2
+![Cherries Result 2](assets/cherry_2.png)
+#### Example 3
+![Cherries Result 3](assets/cherry_3.png)
+

@@ -97,6 +97,7 @@ int main(int argc, char **argv) {
             if (perimeter.at<uchar>(i, j) == 255) {
                 channels[0].at<uchar>(i, j) = 0;                
                 channels[1].at<uchar>(i, j) = 255;                
+                channels[2].at<uchar>(i, j) = 0;                
             }
         }
     }
