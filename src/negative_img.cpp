@@ -3,7 +3,7 @@
 
 #define MAX_PIX 255
 
-void negative(cv::Mat& in, cv::Mat& out);
+cv::Mat negative(cv::Mat& in);
 
 int main(int argc, char **argv) {
     if (argc < 2 ) {
@@ -16,9 +16,7 @@ int main(int argc, char **argv) {
     int rows = img.size().height;
     int cols = img.size().width;
 
-    cv::Mat out = cv::Mat(rows, cols, CV_8U);
-
-    negative(img, out);
+    cv::Mat out = negative(img);
 
     cv::imshow("Img Source", img);
     cv::imshow("Img Negative", out);
@@ -27,9 +25,10 @@ int main(int argc, char **argv) {
     return EXIT_SUCCESS;
 }
 
-void negative(cv::Mat& in, cv::Mat& out) {
+cv::Mat negative(cv::Mat& in) {
     std::vector<cv::Mat> channels;
-
+    cv::Mat out;
+    
     split(in, channels);
 
     int rows = in.size().height;
@@ -44,4 +43,5 @@ void negative(cv::Mat& in, cv::Mat& out) {
     }
     
     cv::merge(channels, out);
+    return out;
 }
