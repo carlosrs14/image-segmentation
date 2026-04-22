@@ -35,7 +35,6 @@ int main(int argc, char **argv) {
     split(img, channels);
     
     out = cv::Mat(rows, cols, CV_8U);
-    // cv::imshow("Cherry Counter", img);
     
     for (size_t i = 0; i < rows; i++) {
         for (size_t j = 0; j < cols; j++) {
@@ -51,7 +50,6 @@ int main(int argc, char **argv) {
     visited = cv::Mat(rows, cols, CV_8U);
     expanded = std::vector<Position>();
 
-    // sacar el area
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             uchar pix = out.at<uchar>(i, j);
